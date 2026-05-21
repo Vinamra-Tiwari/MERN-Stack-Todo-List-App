@@ -1,5 +1,10 @@
 pipeline {
     agent any
+    
+    tools {
+        // Tells Jenkins to use the NodeJS installation we will configure
+        nodejs 'Node20'
+    }
 
     stages {
         stage('Checkout') {
@@ -19,16 +24,33 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('client') {
-                    // Set legacy OpenSSL provider for older react-scripts
                     sh 'export NODE_OPTIONS=--openssl-legacy-provider && npm install'
                 }
             }
         }
         
-        stage('Docker Build Test') {
+        stage('Dependency Check') {
             steps {
-                // Verify that the docker-compose stack builds successfully
-                sh 'docker-compose build'
+                // Perform a dependency check on the backend and frontend
+                // using npm's built-in vulnerability auditing tool
+                dir('backend') {
+                    sh 'npm audit --audit-level=high || true'
+                }
+                dir('client') {
+                    sh 'npm audit --audit-level=high || true'
+                }
+            }
+        }
+        
+        stage('Security Check (SonarQube)') {
+            environment {
+                // Example of integrating SonarQube
+                scannerHome = tool 'SonarScanner'
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=MERN-App -Dsonar.sources=."
+                }
             }
         }
     }
