@@ -43,7 +43,7 @@ export default class CreateTodo extends Component {
             todo_completed: this.state.todo_completed
         }
 
-        axios.post('http://localhost:4000/todos/add', newTodo)
+        axios.post((process.env.REACT_APP_API_URL || 'http://localhost:4000') + '/todos/add', newTodo)
             .then( res => console.log(res.data));
         
         this.setState({

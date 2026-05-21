@@ -25,7 +25,7 @@ export default class TodosList extends Component {
     }
 
     componentDidMount() {
-        axios.get('http://localhost:4000/todos')
+        axios.get((process.env.REACT_APP_API_URL || 'http://localhost:4000') + '/todos')
             .then( res => {
                 this.setState({
                     todos: res.data
@@ -35,7 +35,7 @@ export default class TodosList extends Component {
     }
 
     componentDidUpdate() {
-        axios.get('http://localhost:4000/todos')
+        axios.get((process.env.REACT_APP_API_URL || 'http://localhost:4000') + '/todos')
             .then( res => {
                 this.setState({
                     todos: res.data
